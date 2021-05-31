@@ -1,18 +1,20 @@
 // each bit is a flag for one of 7 subregions
-// bit 0000001 = top region, A & !B & !C
-// ...rotate clockwise...
-// bit 0100000 = left mid region, A & C & !B
+// bit 0000001 = top region, A & ~B & ~C
+// bit 0000010 = right mid region, A & B & ~C
+// ...keep iterating clockwise...
+// bit 0100000 = left mid region, A & C & ~B
+// ...and lastly
 // bit 1000000 = center, A & B & C
 
-// REGION = {
-//   A: 0b1100011,
-//   B: 0b1001110,
-//   C: 0b1111000,
-// }
+// and i guess extend it to use 8th bit for region outside A,B,C
+
+// regions, ie the main circles
 A = 0b1100011
 B = 0b1001110
 C = 0b1111000
 
+// subregion is name for subsets of size 1 (ie a single, indivisible part of the diagram)
+// ie bits 0000001 -> 1000000
 subregions = [
   A & ~B & ~C,
   A & B & ~C,
@@ -21,8 +23,19 @@ subregions = [
   ~A & ~B & C,
   A & ~B & C,
   A & B & C,
+  // (~A & ~B & ~C & 0b1111111)
 ]
 
+// convenience for common but lengthy-to-write subsets
+A_ONLY = A & ~B & ~C
+B_ONLY = ~A & B & ~C
+C_ONLY = ~A & ~B & C
+
+AB_ONLY = A & B & ~C
+BC_ONLY = ~A & B & C
+AC_ONLY = A & ~B & C
+
+// other subsets
 otherMasks = [
   A,
   B,

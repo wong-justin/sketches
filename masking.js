@@ -2,12 +2,17 @@
 
 function Mask(img=undefined) {
   // gives boolean operations to image masks (ie images using alpha channel)
+  // maybe replace images with boolean arrays and see if it's faster?
+  // numpy boolean mask wannabe
 
-  this.img = (img === undefined) ?
-    createImage(width, height) :
-    img
+  if (img === undefined) {
+    // img = imgFromGraphics(pg => pg.background(transparent))
+    img = createImage(width, height)
+  }
+  this.img = img
 
   this.and = function(other) {
+    // intersection
     let img = clone(
       (other instanceof Mask) ?
         other.img :
@@ -18,12 +23,14 @@ function Mask(img=undefined) {
   }
 
   this.or = function(other) {
+    // union
     return (other instanceof Mask) ?
       new Mask(addImages(this.img, other.img)) :
       new Mask(addImages(this.img, other))
   }
 
   this.not = function() {
+    // opposite
     return new Mask(invertOpacity(clone(this.img)))
   }
 }
@@ -39,6 +46,26 @@ function invertOpacity(img) {
     // pg.pixels[i+1] = g
     // pg.pixels[i+2] = b
     img.pixels[i+3] = 255 - img.pixels[i+3]  // invert alpha channel
+  }
+
+  img.updatePixels()
+  return img
+}
+
+function fillWhereOpaque(img, color) {
+  img.loadPixels()
+  let d = pg.pixelDensity()
+  let numPixelValues = 4 * width * height  // for images, which I don't think have pixel densities
+
+  let r = red(color),
+      g = green(color),
+      b = blue(color)
+  for (let i = 0; i < numPixelValues; i += 4) {
+    if (img.pixels[i+3] == 255) {  // alpha
+      img.pixels[i] = r
+      img.pixels[i+1] = g
+      img.pixels[i+2] = b
+    }
   }
 
   img.updatePixels()
