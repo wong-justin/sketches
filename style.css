@@ -1,7 +1,13 @@
 html, body {
   margin: 0;
   padding: 0;
+
+  /* overscroll-behavior-y: none; */ /* doesn't work, at least on safari */
+  /* instead: */
+  position: fixed;
+  overflow: hidden;
 }
+
 canvas {
   display: block;
 }
